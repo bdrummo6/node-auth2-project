@@ -4,6 +4,7 @@ exports.up = async function(knex) {
 		tbl.increments();
 		tbl.text('username').notNullable().unique();
 		tbl.text('password').notNullable();
+		tbl.text('department').notNullable();
 	})
 }
 
