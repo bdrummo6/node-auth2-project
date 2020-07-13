@@ -4,7 +4,7 @@
   "description": "- Authentication.\r - Express Middleware.\r - JSON Web Tokens (JWTs).\r - Hashing Passwords.",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon -r dotenv/config index.js",
+    "server": "nodemon index.js",
     "start": "node index.js"
   },
   "repository": {
@@ -20,6 +20,7 @@
   "homepage": "https://github.com/bdrummo6/node-auth2-project#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "connect-session-knex": "^1.7.3",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "express": "^4.17.1",
