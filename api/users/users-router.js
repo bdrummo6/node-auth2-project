@@ -1,12 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const Users = require('./users-model');
 const restrict = require('../../middleware/restrict');
 
 const router = express.Router();
 
-// Retrieves list of users from database
-router.get('/users', restrict(), async (req, res, next) => {
+router.get('/users', restrict(0), async (req, res, next) => {
 	try {
 		res.json(await Users.find());
 	} catch(err) {
@@ -14,7 +14,6 @@ router.get('/users', restrict(), async (req, res, next) => {
 	}
 })
 
-// Adds a new user to the database
 router.post('/register', async (req, res, next) => {
 	try {
 		const { username, password, department } = req.body;
@@ -22,16 +21,15 @@ router.post('/register', async (req, res, next) => {
 
 		if (user) {
 			return res.status(409).json({
-				message: 'Username already exists!',
+				message: 'Username is already taken',
 			});
 		}
 
 		const newUser = await Users.add({
 			username,
-			password: await bcrypt.hash(password, 12), // hash the password with a time complexity of '12'
-			department
+			department,
+			password: await bcrypt.hash(password, 14),
 		})
-
 
 		res.status(201).json(newUser);
 	} catch(err) {
@@ -39,7 +37,6 @@ router.post('/register', async (req, res, next) => {
 	}
 })
 
-// Creates new user session so user can access list of users
 router.post('/login', async (req, res, next) => {
 	try {
 		const { username, password } = req.body;
@@ -51,39 +48,28 @@ router.post('/login', async (req, res, next) => {
 			});
 		}
 
-		// hash the password again and see if it matches what we have in the database
-		const passwordIsValid = await bcrypt.compare(password, user.password)
+		const passwordValid = await bcrypt.compare(password, user.password);
 
-		if (!passwordIsValid) {
+		if (!passwordValid) {
 			return res.status(401).json({
 				message: 'You shall not pass!',
 			});
 		}
 
-		req.session.user = user;
+		const payload = {
+			id: user.id,
+			username: user.username,
+			department: user.department,
+		}
+
+		res.cookie('token', jwt.sign(payload, process.env.JWT_SECRET));
 
 		res.json({
-			message: `${user.username} is logged in!`,
+			message: `Welcome ${user.username}!`,
 		});
 	} catch(err) {
 		next(err);
 	}
 })
-
-// Ends user's session
-router.get('/logout', async (req, res, next) => {
-	try {
-		req.session.destroy((err) => {
-			if (err) {
-				next(err);
-			} else {
-				res.status(204).end();
-			}
-		})
-	} catch (err) {
-		next(err);
-	}
-})
-
 
 module.exports = router;

@@ -1,17 +1,29 @@
-function restrict() {
-	const error = {
-		message: 'You shall not pass!',
-	}
+const jwt = require('jsonwebtoken');
 
+function restrict(level) {
 	return async (req, res, next) => {
-		try {
+		const authError = {
+			message: 'You shall not pass!',
+		}
 
-			if (!req.session || !req.session.user) {
-				return res.status(401).json(error);
+		try {
+			const token = req.cookies.token;
+			if (!token) {
+				return res.status(401).json(authError);
 			}
 
-			next();
-		} catch (err) {
+			jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+				if (err) {
+					return res.status(401).json(authError);
+				}
+
+				if (level>0 && decoded.department !== 'admin') {
+					return res.status(401).json(authError);
+				}
+
+				next();
+			})
+		} catch(err) {
 			next(err);
 		}
 	}

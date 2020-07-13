@@ -1,30 +1,26 @@
 const db = require('../../database/dbConfig');
 
 module.exports = {
+	add,
 	find,
 	findBy,
-	findById,
-	add
+	findById
 }
 
-// Finds every users id and username from users table in database
+async function add(user) {
+	const [id] = await db('users').insert(user);
+	return findById(id);
+}
+
 function find() {
 	return db('users').select('id', 'username', 'department');
 }
 
-// Finds user with the specified id
-function findById(id) {
-	return db('users').select('id', 'username', 'department').where({ id }).first();
-}
-
-// Find by specified criteria
 function findBy(filter) {
 	return db('users').select('id', 'username', 'password', 'department').where(filter);
 }
 
-// Adds user to the database
-async function add(user) {
-	const [id] = await db('users').insert(user);
-	return findById(id);
+function findById(id) {
+	return db('users').select('id', 'username', 'department').where({ id }).first();
 }
 
