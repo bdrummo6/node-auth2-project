@@ -2,9 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const roles = [
 	'inactive',
-	'support',
 	'sales',
-	'finance',
 	'IT',
 	'admin',
 ]
