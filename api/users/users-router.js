@@ -6,6 +6,7 @@ const restrict = require('../../middleware/restrict');
 
 const router = express.Router();
 
+// Returns all users in the database
 router.get('/users', restrict(0), async (req, res, next) => {
 	try {
 		res.json(await Users.find());
@@ -14,6 +15,18 @@ router.get('/users', restrict(0), async (req, res, next) => {
 	}
 })
 
+/*// Returns all users within the login user's department
+router.get('/users', restrict(0), async (req, res, next) => {
+	try {
+		const { department } = req.body;
+		const users = await Users.findBy({ department });
+		res.json(users);
+	} catch(err) {
+		next(err);
+	}
+})*/
+
+// Creates a new user in the database
 router.post('/register', async (req, res, next) => {
 	try {
 		const { username, password, department } = req.body;
@@ -37,6 +50,7 @@ router.post('/register', async (req, res, next) => {
 	}
 })
 
+// Creates a login session for a user
 router.post('/login', async (req, res, next) => {
 	try {
 		const { username, password } = req.body;
@@ -70,6 +84,12 @@ router.post('/login', async (req, res, next) => {
 	} catch(err) {
 		next(err);
 	}
+})
+
+// Logs user out
+router.get('/logout', async (req, res, next) => {
+	res.clearCookie('token');
+	res.send('User successfully logged out.')
 })
 
 module.exports = router;
