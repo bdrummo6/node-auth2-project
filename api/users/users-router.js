@@ -7,7 +7,7 @@ const restrict = require('../../middleware/restrict');
 const router = express.Router();
 
 // Returns all users in the database
-router.get('/users', restrict('admin'), async (req, res, next) => {
+router.get('/users', restrict('support'), async (req, res, next) => {
 	try {
 		res.json(await Users.find());
 	} catch(err) {
